@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "start": "node --experimental-strip-types --env-file-if-exists=.env src/server.ts",
     "test": "node --experimental-strip-types --test test/*.test.ts"
   }
 }
