@@ -103,8 +103,9 @@ async function load() {
       <div class="sub">${when(j.departure)} · ${esc(j.reference)}${j.reason ? " · " + esc(j.reason) : ""}</div></div>`).join("")
     : `<p class="empty">No journeys yet. Add a booking below.</p>`;
 
-  $("gmail").innerHTML = state.gmailConnected
-    ? `<button id="sync">Sync Gmail</button>` : `<a href="/auth/google"><button type="button">Connect Gmail</button></a>`;
+  $("gmail").innerHTML = !state.gmailAvailable ? ""
+    : state.gmailConnected ? `<button id="sync">Sync Gmail</button>`
+    : `<a href="/auth/google"><button type="button">Connect Gmail</button></a>`;
 
   if (state.profile) for (const [k, v] of Object.entries(state.profile)) { const el = $("profile").elements[k]; if (el) el.value = v; }
 }

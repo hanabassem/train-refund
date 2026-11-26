@@ -10,6 +10,7 @@ import { resolveWithArrivalTime } from "./matcher.ts";
 import { buildClaimPack, claimDeadline, claimPackText, type Profile } from "./claimPack.ts";
 import { addBooking, addClaim, loadData, saveData, type AppData, type ClaimStatus } from "./store.ts";
 import { consoleNotifier, rateLimited, runChecks, type Notifier } from "./scheduler.ts";
+import { gmailRoutes, googleConfigFromEnv, syncGmail } from "./gmail.ts";
 
 export interface AppConfig {
   dataFile: string;
@@ -112,7 +113,9 @@ export function createApp(cfg: AppConfig) {
         res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
         return res.end(await readFile(new URL("../public/index.html", import.meta.url)));
       }
-      if (route === "GET /api/state") return json(200, view(await loadData(cfg.dataFile)));
+      if (route === "GET /api/state") {
+        return json(200, { ...view(await loadData(cfg.dataFile)), gmailAvailable: Boolean(cfg.extraRoutes) });
+      }
 
       if (route === "PUT /api/profile") {
         const profile = validProfile(await body());
@@ -164,13 +167,18 @@ export function createApp(cfg: AppConfig) {
 // Start when run directly.
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const cfg = configFromEnv();
+  const google = googleConfigFromEnv();
+  if (google) cfg.extraRoutes = gmailRoutes(google);
   const port = Number(process.env.PORT ?? 3000);
   const host = process.env.HOST ?? "127.0.0.1";
   const { server, withData } = createApp(cfg);
   server.listen(port, host, () => console.log(`Train refund app on http://${host}:${port}`));
 
-  // Every 15 minutes: check journeys that should have arrived.
-  const tick = () => withData((d) => runChecks(d, { hsp: cfg.hsp }))
+  // Every 15 minutes: pull new booking emails (if Gmail is connected), then check journeys.
+  const tick = () => withData(async (d) => {
+    if (google && d.google?.refreshToken) await syncGmail(google, d);
+    await runChecks(d, { hsp: cfg.hsp });
+  })
     .catch((e) => console.error("Background check failed:", (e as Error).message));
   setInterval(tick, 15 * 60 * 1000);
 }
