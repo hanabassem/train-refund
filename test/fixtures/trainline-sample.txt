@@ -1,0 +1,12 @@
+SYNTHETIC SAMPLE — replace with a real, redacted Trainline confirmation email.
+
+Your tickets are booked!
+
+Booking reference: TL8X2K9Q
+Travel date: Fri 20 Nov 2026
+Ticket type: Off-Peak Single
+Total paid: £45.60
+
+Outward journey
+08:30 London Euston → 10:41 Manchester Piccadilly (Avanti West Coast)
+10:58 Manchester Piccadilly → 11:26 Stockport (Northern)
