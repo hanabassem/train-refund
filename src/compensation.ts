@@ -26,7 +26,7 @@ export interface Assessment {
 export const OPERATOR_SCHEMES: Record<string, Scheme> = {
   "Avanti West Coast": "DR15",
   "Great Western Railway": "DR15",
-  "LNER": "DR15",
+  "LNER": "DR30",
   "Northern": "DR15",
   "TransPennine Express": "DR15",
 };

@@ -21,6 +21,11 @@ test("return ticket, 120+ min → full return fare", () => {
   assert.equal(assess({ ...base, ticketType: "return", delayMinutes: 130 }).refundPence, 8000);
 });
 
+test("LNER is DR30: 20 min not eligible, 35 min → 50%", () => {
+  assert.equal(assess({ ...base, operator: "LNER", delayMinutes: 20 }).eligible, false);
+  assert.equal(assess({ ...base, operator: "LNER", delayMinutes: 35 }).refundPence, 4000);
+});
+
 test("unknown operator is rejected, not guessed", () => {
   const r = assess({ ...base, operator: "Unknown Rail", delayMinutes: 60 });
   assert.equal(r.eligible, false);
